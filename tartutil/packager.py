@@ -31,7 +31,7 @@ def main():
         help()
     else:
         try:
-            modname = __package__ + '.commands.' + args.cmd
+            modname = 'tartutil' + '.commands.' + args.cmd
             mod = importlib.import_module(modname)
         except ImportError:
             # TODO: fix ugliness
