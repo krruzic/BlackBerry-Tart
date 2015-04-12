@@ -8,10 +8,11 @@ setup(name='bbtart',
       author='blackberry-py project',
       author_email='',
       url='https://github.com/krruzic/blackberry-tart/',
+      requires=['pillow'],
       packages=['tartutil', 'tartutil.commands', 'tart', 'tart.bbutilities', 'tart.bbutilities.bb', 'tart.bbutilities.tart', 'tart.bbutilities.pyggles'],
       package_data = {'tart': ['assets/*', 'entry/*', 'tart.hgid'],
                       'tartutil': ['*.png'],
-                      'tartutil.commands': ['bar-descriptor-template.xml', 'app_template/*'],
+                      'tartutil.commands': ['bar-descriptor-template.xml'],
                       'tartutil.bbutilities': ['libdynload/*']},
       scripts = ['tartutil/packager.py']
      )

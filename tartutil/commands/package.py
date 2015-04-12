@@ -147,8 +147,8 @@ class Command(command.Command):
             iconpath = None
 
         pkgname = appname.replace(' ', '') + '.bar'
-
         config.extras = self.project.config('extras', '').format(cfg=config)
+        print(config.extras)
 
         with open(BAR_TEMPLATE) as ftemplate:
             bardesc = ftemplate.read().format(cfg=config)
@@ -159,15 +159,14 @@ class Command(command.Command):
             # these are always included
             # include.add((os.path.join(tartdistro, 'js'), 'tart.js'))
             # This is actually found by find_modules, as our __main__
-            # include.append((os.path.join(tartdistro, 'python'), 'blackberry_tart.py'))
+            include.add((os.path.join(tartdistro, 'bbutilities'), 'blackberry_tart.py'))
 
             assets = [x.strip().rstrip('/') for x in self.project.config('assets', '').split()]
             if os.path.exists(self.project.relpath('assets')) and 'assets' not in assets:
                 assets.append('assets')
 
             for asset in assets:
-                # print('asset', asset)
-                if os.path.isfile(asset):
+                if os.path.isfile(self.project.relpath(asset)):
                     # print('adding', asset)
                     include.add((self.project.root, asset))
                     continue
@@ -359,7 +358,7 @@ class Command(command.Command):
 
     def find_modules(self, tartdir):
         from tart.bbutilities import blackberry_tart
-        tartpydir = os.path.join(tartdir, 'python')
+        tartpydir = os.path.join(tartdir, 'bbutilities')
         searchpath = [tartpydir, self.project.root]
         for path in sys.path:
             if 'site-packages' in path:

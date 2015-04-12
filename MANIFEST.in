@@ -1,0 +1,1 @@
+recursive-include tartutil/commands/app-template *
