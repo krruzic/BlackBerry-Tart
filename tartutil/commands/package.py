@@ -53,7 +53,7 @@ class Command(command.Command):
             help='force -devMode (in release mode)')
         parser.add_argument('-v', '--verbose', action='store_true',
             help='spew more details')
-        parser.add_argument('project', default='.', nargs='?',
+        parser.add_argument('-p', '--package', default='.', metavar='PACKAGE',
             help='path to project (default: current directory)')
 
 
@@ -65,7 +65,7 @@ class Command(command.Command):
         if args.mode == 'release' and args.arch == 'x86':
             sys.exit('release mode not currently supported on the simulator')
 
-        self.project = project.Project(args.project)
+        self.project = project.Project(args.package)
         if self.args.verbose:
             print('project', self.project)
 
@@ -202,7 +202,6 @@ class Command(command.Command):
         # print('include')
         # print('\n'.join('%s  %s' % x for x in sorted(include)))
 
-        cmd = ['blackberry-nativepackager']
         with tempfile.TemporaryDirectory(prefix='tart-', dir='.') as tdir:
             os.chdir(tdir)
             try:
@@ -384,7 +383,7 @@ class Command(command.Command):
             # modules.append(mod.__file__)
 
         # FIXME: should strip stdlib modules from here before showing
-        # print('Modules not found:', ', '.join(finder.badmodules))
+        print('Modules not found:', ', '.join(finder.badmodules))
 
         # FIXME: true ugliness, plus it doesn't handle x86
         if 'tart.dynload' in finder.badmodules:

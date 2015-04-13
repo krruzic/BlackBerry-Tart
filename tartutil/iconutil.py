@@ -13,7 +13,7 @@ OVERLAY = Image.open(os.path.join(os.path.dirname(__file__), 'draftoverlay.png')
 
 def draft_overlay(iconpath):
     icon = Image.open(iconpath)
-    dimmer = ImageEnhance.Brightness(icon).enhance(0.7)
+    dimmer = ImageEnhance.Brightness(icon).enhance(1)
     dimmer.paste(OVERLAY, (0, 0), OVERLAY)
     return dimmer
 

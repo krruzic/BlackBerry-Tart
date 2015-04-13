@@ -36,6 +36,7 @@ def main():
         except ImportError:
             # TODO: fix ugliness
             path = os.path.join(os.path.dirname(__file__), 'commands/' + args.cmd + '.py')
+            print(path)
             if not os.path.exists(path):
                 print('{}: unknown command "{}"'.format(NAME, args.cmd))
             else:

@@ -18,34 +18,45 @@ class Command(command.Command):
 
 
     def add_arguments(self, parser):
-        parser.add_argument('password', default='', metavar='PASSWORD',
+        parser.add_argument('-r', '--release', metavar='RELEASE',
+            help="Include to sign the bar before deploying (include storepass)")
+        parser.add_argument('-p', '--password', default='', metavar='PASSWORD',
             help="The device's password")
-        parser.add_argument('device', default='169.254.0.1', metavar='IP',
+        parser.add_argument('-d', '--device', default='169.254.0.1', metavar='IP',
             help='Device IP address (default: %(default)s')
-        parser.add_argument('package', metavar='BAR FILE',
+        parser.add_argument('-b', '--bar', default='.', metavar='PACKAGE',
             help='The package to install')
         parser.add_argument('-v', '--verbose', action='store_true',
             help='spew more details')
 
     def run(self, args):
-        command = ['blackberry-deploy', '-installApp']
-
+        sign = ['blackberry-signer']
+        deploy = ['blackberry-deploy', '-installApp']
         self.args = args
+
+        def opt(cmd, *args):
+            cmd.extend(args)
+
+        opt(deploy, '-password', args.password)
+        opt(deploy, '-device', args.device)
+        opt(deploy, '-package', args.bar)
+
         if args.verbose:
             print('install args: ', args)
 
-        def opt(*args):
-            command.extend(args)
+        if args.release:
+            opt(sign, '-storepass', args.release)
+            opt(sign, args.bar)
+            res, err = self.do_cmd(sign)
+            if err:
+                self.handle_err(err)
+            print(res)
 
-        opt('-password', args.password)
-        opt('-device', args.device)
-        opt('-package', args.package)
-
-        res, err = self.do_cmd(command)
+        res, err = self.do_cmd(deploy)
         if err:
             self.handle_err(err)
         if (res.splitlines()[-1] == "result::success"):
-            print(self.args.package + " successfully installed to " + self.args.device)
+            print(self.args.bar + " successfully installed to " + self.args.device)
 
     def do_cmd(self, cmd):
         if self.args.verbose:
@@ -56,7 +67,7 @@ class Command(command.Command):
         return (output, stderr)
 
     def handle_err(self, err):
-        if 'unreachable' in err:
+        if 'unreachable' in err or 'cannot' in err:
             print("Error connecting to: " + self.args.device + ", install failed!")
         else:
             print(err)
