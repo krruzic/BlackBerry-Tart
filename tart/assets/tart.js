@@ -78,6 +78,9 @@ function register(namespace) {
         if (typeof namespace[name] !== 'function')
             return;
 
+        if (typeof _handlers[name] !== 'undefined')
+            print('warning: duplicate registration for', name);
+
         _handlers[name] = namespace[name];
         if (debug)
             print('registered handler', name);
@@ -91,14 +94,18 @@ function register(namespace) {
 // to pre-registered routines based on the specified type of message.
 //
 Tart._onMessage = function(msg) {
-    if (debug)
+    if (debug && !/"_quiet_send_": true/.test(msg))
         console.log('_onMessage', msg);
 
-    var parts = JSON.parse(msg);
-    var type = parts[0];
-    var data = parts[1];
+    try {
+        var parts = JSON.parse(msg);
+        var type = parts[0];
+        var data = parts[1];
 
-    dispatch(type, data);
+        dispatch(type, data);
+    } catch (error) {
+        printStackTrace(error);
+    }
 }
 
 
@@ -146,18 +153,20 @@ Tart.onContinueExit = function() {
 }
 
 
-//-------------------------------------
-// Optional... backend code does tart.send('backendReady')
-// when the event loop starts up, though a subclass of
-// the Python tart.Application() could override that and
-// not bother. Here we do nothing special with it, but code
-// in one of the QML objects could implement this and do something useful.
-//
-Tart.onBackendReady = function() {
-    if (debug)
-        console.log('backend is ready, duh');
+Tart.onWindowStateChanged = function(data) {
+    // if (debug)
+    //     console.log('window state', data.state);
 }
 
+Tart.onAppStateChanged = function(data) {
+    // if (debug)
+    //     console.log('app state', data.state);
+}
+
+Tart.onSwipeDown = function(data) {
+    // if (debug)
+    //    console.log('swipe down');
+}
 
 //-------------------------------------
 // By default, we do nothing about this in the UI code but
@@ -171,6 +180,14 @@ Tart.onManualExit = function() {
     if (debug)
         console.log('** onManualExit');
     Tart.send('manualExit');
+}
+
+
+function printStackTrace(error) {
+    print(error.fileName + ':' + error.lineNumber);
+    print('error:', error.message);
+    // print(JSON.stringify(error));
+    // unused: expressionBeginOffset, expressionEndOffset, expressionCaretOffset, sourceId
 }
 
 

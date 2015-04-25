@@ -7,6 +7,7 @@ from ctypes import (c_bool, c_float, c_double, c_int, c_char_p, c_void_p, c_uint
 from ._wrap import _func, _register_funcs
 
 from .screen import screen_context_t, screen_event_t
+from .siginfo import sigevent
 
 class bps_event_t(Structure):
     _fields_ = []
@@ -93,7 +94,14 @@ BPS_VERSION_STRING = "1.0.0"
 BPS_SUCCESS = 0
 BPS_FAILURE = -1
 
+BPS_IO_INPUT    = 0x01
+BPS_IO_OUTPUT   = 0x02
+BPS_IO_EXCEPT   = 0x04
+# bps_io_events_t
+
 bps_exec_func = CFUNCTYPE(c_int, c_void_p)
+bps_add_fd_cb_func = CFUNCTYPE(c_int, c_int, c_int, c_void_p)
+sigevent_handler_func = CFUNCTYPE(c_int, c_void_p)
 
 bps_channel_create = _func(c_int, POINTER(c_int), c_int)
 bps_channel_destroy = _func(c_int, c_int)
@@ -111,10 +119,11 @@ bps_free = _func(None, c_void_p) # not sure None is legal restype
 bps_channel_exec = _func(c_int, c_int, bps_exec_func, c_void_p)
 # bps_register_shutdown_handler
 # bps_register_channel_destroy_handler
-# bps_add_fd
-# bps_remove_fd
-# bps_add_sigevent_handler
-# bps_remove_sigevent_handler
+bps_add_fd = _func(c_int, c_int, c_int, bps_add_fd_cb_func, c_void_p)
+bps_remove_fd = _func(c_int, c_int)
+
+bps_add_sigevent_handler = _func(c_int, POINTER(sigevent), sigevent_handler_func, c_void_p)
+bps_remove_sigevent_handler = _func(c_int, POINTER(sigevent))
 # bps_set_domain_data
 # bps_get_domain_data
 
@@ -260,6 +269,7 @@ navigator_close_window = _func(c_int)
 navigator_get_device_lock_state = _func(c_int)
 navigator_event_get_app_state = _func(navigator_app_state_t, POINTER(bps_event_t))
 navigator_set_wallpaper = _func(c_int, c_char_p)
+navigator_extend_terminate = _func(c_int)
 # TODO: add the latest new functions including get_orientation_size_width/height
 
 
@@ -435,6 +445,23 @@ virtualkeyboard_get_height = _func(c_int, POINTER(c_int))
 virtualkeyboard_request_events = _func(c_int, c_int)
 virtualkeyboard_get_domain = _func(c_int)
 virtualkeyboard_event_get_height = _func(c_int, POINTER(bps_event_t))
+
+
+
+BUTTON_POWER = 0
+BUTTON_PLAYPAUSE = 1
+BUTTON_PLUS = 2
+BUTTON_MINUS = 3
+
+BUTTON_UP = 0
+BUTTON_DOWN = 1
+
+
+button_request_events = _func(c_int) # 0 is all events. Non-zero is reserved for future use
+button_get_domain = _func(c_int)
+button_event_get_button = _func(c_int, POINTER(bps_event_t))
+button_stop_events = _func(c_int) # 0 is all events. Non-zero is reserved for future use
+
 
 
 #----------------------------
